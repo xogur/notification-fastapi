@@ -19,7 +19,8 @@ class Config:
 @dataclass
 class LocalConfig(Config): # 위의 Config를 상속 받음
     PROJ_RELOAD: bool = True
-    DB_URL: str = "mysql+pymysql://travis@localhost/notification_api?charset=utf8mb4"
+    # DB_URL: str = "mysql+pymysql://travis@localhost/notification_api?charset=utf8mb4"
+    DB_URL: str = "postgresql+psycopg://postgres:4444@localhost:5432/study"
 
 
 @dataclass
