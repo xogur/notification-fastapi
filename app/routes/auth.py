@@ -3,8 +3,6 @@ from datetime import datetime, timedelta
 import bcrypt
 import jwt
 from fastapi import APIRouter, Depends
-
-# TODO:
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
@@ -14,62 +12,142 @@ from app.database.conn import db
 from app.database.schema import Users
 from app.models import SnsType, Token, UserToken
 
-"""
-1. 구글 로그인을 위한 구글 앱 준비 (구글 개발자 도구)
-2. FB 로그인을 위한 FB 앱 준비 (FB 개발자 도구)
-3. 카카오 로그인을 위한 카카오 앱준비( 카카오 개발자 도구)
-4. 이메일, 비밀번호로 가입 (v)
-5. 가입된 이메일, 비밀번호로 로그인, (v)
-6. JWT 발급 (v)
-
-7. 이메일 인증 실패시 이메일 변경
-8. 이메일 인증 메일 발송
-9. 각 SNS 에서 Unlink 
-10. 회원 탈퇴
-11. 탈퇴 회원 정보 저장 기간 동안 보유(법적 최대 한도차 내에서, 가입 때 약관 동의 받아야 함, 재가입 방지 용도로 사용하면 가능)
-"""
-
-
 router = APIRouter()
 
 
 @router.post("/register/{sns_type}", status_code=200, response_model=Token)
-async def register(sns_type: SnsType, reg_info: models.UserRegister, session: Session = Depends(db.session)):
+async def register(
+    sns_type: SnsType,
+    reg_info: models.UserRegister,
+    session: Session = Depends(db.session),
+):
     """
     회원가입 API
-    :param sns_type:
-    :param reg_info:
-    :param session:
-    :return:
     """
     if sns_type == SnsType.email:
-        is_exist = await is_email_exist(reg_info.email)
+        # 1) 필수값 체크
         if not reg_info.email or not reg_info.pw:
-            return JSONResponse(status_code=400, content=dict(msg="Email and PW must be provided'"))
+            return JSONResponse(
+                status_code=400,
+                content=dict(msg="Email and PW must be provided"),
+            )
+
+        # 2) 이메일 중복 체크
+        is_exist = await is_email_exist(reg_info.email)
         if is_exist:
-            return JSONResponse(status_code=400, content=dict(msg="EMAIL_EXISTS"))
-        hash_pw = bcrypt.hashpw(reg_info.pw.encode("utf-8"), bcrypt.gensalt())
-        new_user = Users.create(session, auto_commit=True, pw=hash_pw, email=reg_info.email)
-        token = dict(Authorization=f"Bearer {create_access_token(data=UserToken.from_orm(new_user).dict(exclude={'pw', 'marketing_agree'}),)}")
+            return JSONResponse(
+                status_code=400,
+                content=dict(msg="EMAIL_EXISTS"),
+            )
+
+        # 3) 비밀번호 해시 (DB에는 문자열로 저장)
+        hashed_pw_bytes: bytes = bcrypt.hashpw(
+            reg_info.pw.encode("utf-8"), bcrypt.gensalt()
+        )
+        hashed_pw_str: str = hashed_pw_bytes.decode("utf-8")
+
+        # 4) 유저 생성
+        new_user = Users.create(
+            session,
+            auto_commit=True,
+            pw=hashed_pw_str,
+            email=reg_info.email,
+        )
+
+        # 5) JWT 발급 (민감 정보는 제외)
+        access_token = create_access_token(
+            data=UserToken.from_orm(new_user).dict(
+                exclude={"pw", "marketing_agree"}
+            )
+        )
+        token = dict(Authorization=f"Bearer {access_token}")
         return token
+
     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
 
-@router.post("/login/{sns_type}", status_code=200)
-async def login(sns_type: SnsType, user_info: models.UserRegister):
-    ...
+@router.post("/login/{sns_type}", status_code=200, response_model=Token)
+async def login(
+    sns_type: SnsType,
+    user_info: models.UserRegister,
+):
+    """
+    로그인 API
+    """
+    if sns_type == SnsType.email:
+        # 1) 필수값 체크
+        if not user_info.email or not user_info.pw:
+            return JSONResponse(
+                status_code=400,
+                content=dict(msg="Email and PW must be provided"),
+            )
+
+        # 2) 가입 여부 확인
+        is_exist = await is_email_exist(user_info.email)
+        if not is_exist:
+            return JSONResponse(
+                status_code=400,
+                content=dict(msg="NO_MATCH_USER"),
+            )
+
+        # 3) 사용자 조회
+        user = Users.get(email=user_info.email)
+        if not user:
+            return JSONResponse(
+                status_code=400,
+                content=dict(msg="NO_MATCH_USER"),
+            )
+
+        # 4) 비밀번호 검증
+        # - user.pw 는 DB에 문자열로 저장되어 있음
+        # - checkpw 의 hashed_password 인자는 bytes 여야 하므로 encode 필요
+        is_verified = bcrypt.checkpw(
+            user_info.pw.encode("utf-8"),  # 입력한 비밀번호(plain)
+            user.pw.encode("utf-8"),      # DB에 저장된 해시 문자열 → bytes
+        )
+
+        if not is_verified:
+            return JSONResponse(
+                status_code=400,
+                content=dict(msg="NO_MATCH_USER"),
+            )
+
+        # 5) JWT 발급
+        access_token = create_access_token(
+            data=UserToken.from_orm(user).dict(
+                exclude={"pw", "marketing_agree"}
+            )
+        )
+        token = dict(Authorization=f"Bearer {access_token}")
+        return token
+
+    return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
 
-async def is_email_exist(email: str):
+async def is_email_exist(email: str) -> bool:
+    """
+    이메일 존재 여부 확인
+    """
     get_email = Users.get(email=email)
     if get_email:
         return True
     return False
 
 
-def create_access_token(*, data: dict = None, expires_delta: int = None):
+def create_access_token(*, data: dict = None, expires_delta: int = None) -> str:
+    """
+    JWT Access Token 생성
+    :param data: 토큰 payload
+    :param expires_delta: 만료 시간 (시간 단위, 없으면 exp 미설정)
+    """
     to_encode = data.copy()
     if expires_delta:
-        to_encode.update({"exp": datetime.utcnow() + timedelta(hours=expires_delta)})
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+        to_encode.update(
+            {"exp": datetime.utcnow() + timedelta(hours=expires_delta)}
+        )
+    encoded_jwt = jwt.encode(
+        to_encode,
+        JWT_SECRET,
+        algorithm=JWT_ALGORITHM,
+    )
     return encoded_jwt
