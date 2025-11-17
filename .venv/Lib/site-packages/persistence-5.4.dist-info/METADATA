@@ -1,0 +1,43 @@
+Metadata-Version: 2.4
+Name: Persistence
+Version: 5.4
+Summary: Persistent ExtensionClass
+Author-email: Zope Foundation and contributors <zope-dev@zope.dev>
+Maintainer-email: Plone Foundation and contributors <zope-dev@zope.dev>
+License-Expression: ZPL-2.1
+Project-URL: Issues, https://github.com/zopefoundation/Persistence/issues
+Project-URL: Source, https://github.com/zopefoundation/Persistence
+Project-URL: Changelog, https://github.com/zopefoundation/Persistence/blob/master/CHANGES.rst
+Classifier: Development Status :: 6 - Mature
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Zope
+Classifier: Framework :: Zope :: 5
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE.txt
+Requires-Dist: ExtensionClass
+Requires-Dist: persistent
+Provides-Extra: test
+Requires-Dist: zope.testrunner>=6.4; extra == "test"
+Dynamic: license-file
+
+Overview
+========
+
+This package provides a variant of the persistent base class that's an
+ExtensionClass_. Unless you need ExtensionClass_ semantics, you probably want to
+use ``persistent.Persistent`` from the persistent_ distribution (formerly in ZODB3).
+
+.. _ExtensionClass : https://pypi.org/project/ExtensionClass/
+.. _persistent : https://pypi.org/project/persistent/

@@ -1,0 +1,63 @@
+Metadata-Version: 2.4
+Name: ExtensionClass
+Version: 6.2
+Summary: Metaclass for subclassable extension types
+Author-email: Zope Foundation and contributors <zope-dev@zope.dev>
+Maintainer-email: Plone Foundation and contributors <zope-dev@zope.dev>
+License-Expression: ZPL-2.1
+Project-URL: Issues, https://github.com/zopefoundation/ExtensionClass/issues
+Project-URL: Source, https://github.com/zopefoundation/ExtensionClass
+Project-URL: Changelog, https://github.com/zopefoundation/ExtensionClass/blob/master/CHANGES.rst
+Classifier: Development Status :: 6 - Mature
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Zope
+Classifier: Framework :: Zope :: 5
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE.txt
+Provides-Extra: test
+Requires-Dist: zope.testrunner; extra == "test"
+Dynamic: license-file
+
+====================================================
+ ExtensionClass and ExtensionClass-related packages
+====================================================
+
+ExtensionClass
+==============
+
+This package provides a metaclass that allows classes implemented in
+extension modules to be subclassed in Python.  Unless you need
+ExtensionClasses for legacy applications (e.g. Zope), you probably
+want to use Python's new-style classes (available since Python 2.2).
+
+ComputedAttribute
+=================
+
+This package provides a way to attach attributes to an
+``ExtensionClass`` or instance that are computed by calling a
+callable.  This works very much like ``property`` known from new-style
+classes, except that a ``ComputedAttribute`` can also be attached to
+an instance and that it honours ExtensionClass semantics (which is
+useful for retaining Acquisition wrappers, for example).
+
+MethodObject
+============
+
+This package lets you attach additional "methods" to ExtensionClasses.
+These "methods" are actually implemented by subclassing the
+``MethodObject.Method`` class and implementing the ``__call__`` method
+there.  Instances of those classes will be bound to the instances
+they're attached to and will receive that instance object as a first
+parameter (after ``self``).

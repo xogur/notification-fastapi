@@ -10,17 +10,13 @@ from app import models
 from app.common.consts import JWT_SECRET, JWT_ALGORITHM
 from app.database.conn import db
 from app.database.schema import Users
-from app.models import SnsType, Token, UserToken
+from app.models import SnsType, Token, UserToken, UserRegister
 
 router = APIRouter()
 
 
-@router.post("/register/{sns_type}", status_code=200, response_model=Token)
-async def register(
-    sns_type: SnsType,
-    reg_info: models.UserRegister,
-    session: Session = Depends(db.session),
-):
+@router.post("/register/{sns_type}", status_code=201, response_model=Token)
+async def register(sns_type: SnsType, reg_info: UserRegister, session: Session = Depends(db.session)):
     """
     회원가입 API
     """
@@ -67,10 +63,7 @@ async def register(
 
 
 @router.post("/login/{sns_type}", status_code=200, response_model=Token)
-async def login(
-    sns_type: SnsType,
-    user_info: models.UserRegister,
-):
+async def login(sns_type: SnsType, user_info: UserRegister):
     """
     로그인 API
     """

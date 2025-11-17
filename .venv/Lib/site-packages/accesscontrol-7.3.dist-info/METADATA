@@ -1,0 +1,68 @@
+Metadata-Version: 2.4
+Name: AccessControl
+Version: 7.3
+Summary: Security framework for Zope
+Author-email: Zope Foundation and contributors <zope-dev@zope.dev>
+Maintainer-email: Plone Foundation and contributors <zope-dev@zope.dev>
+License-Expression: ZPL-2.1
+Project-URL: Issues, https://github.com/zopefoundation/AccessControl/issues
+Project-URL: Source, https://github.com/zopefoundation/AccessControl
+Project-URL: Changelog, https://github.com/zopefoundation/AccessControl/blob/master/CHANGES.rst
+Keywords: security,access,authorization
+Classifier: Development Status :: 6 - Mature
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Zope
+Classifier: Framework :: Zope :: 5
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE.txt
+Requires-Dist: Acquisition
+Requires-Dist: AuthEncoding
+Requires-Dist: BTrees
+Requires-Dist: DateTime
+Requires-Dist: ExtensionClass
+Requires-Dist: Persistence
+Requires-Dist: RestrictedPython
+Requires-Dist: transaction
+Requires-Dist: zExceptions
+Requires-Dist: zope.component
+Requires-Dist: zope.configuration
+Requires-Dist: zope.deferredimport
+Requires-Dist: zope.interface
+Requires-Dist: zope.publisher
+Requires-Dist: zope.schema
+Requires-Dist: zope.security
+Requires-Dist: zope.testing
+Provides-Extra: test
+Requires-Dist: zope.testrunner>=6.4; extra == "test"
+Dynamic: license-file
+
+.. image:: https://github.com/zopefoundation/AccessControl/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/zopefoundation/AccessControl/actions/workflows/tests.yml
+
+.. image:: https://coveralls.io/repos/github/zopefoundation/AccessControl/badge.svg?branch=master
+   :target: https://coveralls.io/github/zopefoundation/AccessControl?branch=master
+
+.. image:: https://img.shields.io/pypi/v/AccessControl.svg
+   :target: https://pypi.org/project/AccessControl/
+   :alt: Current version on PyPI
+
+.. image:: https://img.shields.io/pypi/pyversions/AccessControl.svg
+   :target: https://pypi.org/project/AccessControl/
+   :alt: Supported Python versions
+
+
+AccessControl
+=============
+
+AccessControl provides a general security framework for use in Zope.
